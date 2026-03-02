@@ -6,15 +6,15 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const data = req.body;
-
-  // Salva num arquivo JSON acumulativo via GitHub API
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-  const REPO = process.env.GITHUB_REPO; // ex: seunome/sebrae-forms
+  const REPO = 'Juan-gabrieldev/sebrae_forms';
   const FILE_PATH = 'respostas.json';
 
-  // Busca arquivo atual
   const getRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
-    headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' }
+    headers: {
+      'Authorization': `Bearer ${GITHUB_TOKEN}`,
+      'Accept': 'application/vnd.github+json'
+    }
   });
 
   let respostas = [];
@@ -28,7 +28,6 @@ export default async function handler(req, res) {
 
   respostas.push({ ...data, timestamp: new Date().toISOString() });
 
-  // Salva de volta
   await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
     method: 'PUT',
     headers: {
@@ -37,7 +36,7 @@ export default async function handler(req, res) {
       'Accept': 'application/vnd.github+json'
     },
     body: JSON.stringify({
-      message: 'Nova resposta formulário',
+      message: 'Nova resposta formulário SEBRAE',
       content: btoa(unescape(encodeURIComponent(JSON.stringify(respostas, null, 2)))),
       ...(sha && { sha })
     })
