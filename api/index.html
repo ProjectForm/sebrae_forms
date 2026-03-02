@@ -54,6 +54,7 @@ input:focus{border-color:var(--blue2);box-shadow:0 0 0 4px rgba(0,87,194,.1);bac
 .ci input:focus{border-color:var(--blue2);}
 .em{font-size:12px;color:var(--error);margin-top:6px;display:none;}
 .em.show{display:block;}
+.loading{opacity:.6;pointer-events:none;}
 .sicon{width:72px;height:72px;background:#DCFCE7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px;}
 .atog{text-align:center;margin-top:28px;font-size:12px;color:var(--muted);}
 .atog a{color:var(--blue2);cursor:pointer;text-decoration:underline;}
@@ -86,7 +87,7 @@ tr:nth-child(even) td{background:#F8FAFF;}
       <input type="email" id="ei" placeholder="seu@email.com" />
       <div class="em" id="ee">Informe um e-mail valido.</div>
     </div>
-    <button class="btn bp" onclick="sendCode()">Enviar codigo de verificacao &rarr;</button>
+    <button class="btn bp" id="btn-send" onclick="sendCode()">Enviar codigo de verificacao &rarr;</button>
   </div>
 
   <div id="s-code" class="card hidden">
@@ -102,9 +103,6 @@ tr:nth-child(even) td{background:#F8FAFF;}
     <div class="em" id="ce" style="text-align:center"></div>
     <button class="btn bp" onclick="verifyCd()">Verificar e continuar &rarr;</button>
     <button class="btn bs" onclick="hd('s-code');sh('s-email')">Voltar</button>
-    <div style="text-align:center;margin-top:16px;font-size:12px">
-      <span style="background:#FFF3CD;padding:4px 12px;border-radius:6px;color:#92400E;font-weight:600">Demo - codigo gerado: <span id="dc" style="font-family:'JetBrains Mono',monospace"></span></span>
-    </div>
   </div>
 
   <div id="s-s1" class="card hidden">
@@ -188,7 +186,7 @@ tr:nth-child(even) td{background:#F8FAFF;}
       </div>
       <div class="em" id="e7">Selecione uma opcao.</div>
     </div>
-    <button class="btn bp" onclick="submitF()">Enviar formulario</button>
+    <button class="btn bp" id="btn-submit" onclick="submitF()">Enviar formulario</button>
     <button class="btn bs" onclick="hd('s-s2');sh('s-s1')">Voltar</button>
   </div>
 
@@ -223,6 +221,7 @@ function sh(id){document.getElementById(id).classList.remove("hidden");}
 function hd(id){document.getElementById(id).classList.add("hidden");}
 function se(id,m){var el=document.getElementById(id);if(m)el.textContent=m;el.classList.add("show");}
 function he(id){document.getElementById(id).classList.remove("show");}
+
 document.querySelectorAll(".rg").forEach(function(g){
   g.querySelectorAll(".ri").forEach(function(ri){
     ri.addEventListener("click",function(){
@@ -231,40 +230,50 @@ document.querySelectorAll(".rg").forEach(function(g){
     });
   });
 });
+
 document.getElementById("fa").addEventListener("change",function(){
   var f=this.files[0];
   if(f&&f.size>10485760){alert("Arquivo muito grande. Maximo 10MB.");this.value="";return;}
   if(f){var n=document.getElementById("fn");n.textContent="Selecionado: "+f.name;n.style.display="block";}
 });
+
 ["f2","f4","f5"].forEach(function(id){
   document.getElementById(id).addEventListener("input",function(){this.value=this.value.replace(/\D/g,"");});
 });
+
 var cds=document.querySelectorAll(".cd");
 cds.forEach(function(inp,i){
   inp.addEventListener("input",function(){inp.value=inp.value.replace(/\D/g,"");if(inp.value&&i<4)cds[i+1].focus();});
   inp.addEventListener("keydown",function(e){if(e.key==="Backspace"&&!inp.value&&i>0){cds[i-1].focus();cds[i-1].value="";}});
 });
+
 async function sendCode(){
   var e=document.getElementById("ei").value.trim();
   if(!e||!/^[^@]+@[^@]+\.[^@]+$/.test(e)){se("ee","Informe um e-mail valido.");return;}
   he("ee");cem=e;gc=String(Math.floor(10000+Math.random()*90000));
-  document.getElementById("cs").innerHTML="Digite o codigo enviado para <strong>"+e+"</strong>.";
-  document.getElementById("dc").textContent=gc;
-
-  // Chama a API para enviar o e-mail
-  await fetch('/api/send-code', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: cem, code: gc })
-  });
-
-  hd("s-email");sh("s-code");cds[0].focus();
+  var btn=document.getElementById("btn-send");
+  btn.textContent="Enviando...";btn.classList.add("loading");
+  try {
+    await fetch('/api/send-code',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:cem,code:gc})
+    });
+    document.getElementById("cs").innerHTML="Digite o codigo enviado para <strong>"+e+"</strong>.";
+    hd("s-email");sh("s-code");cds[0].focus();
+  } catch(err) {
+    se("ee","Erro ao enviar e-mail. Tente novamente.");
+  } finally {
+    btn.textContent="Enviar codigo de verificacao \u2192";btn.classList.remove("loading");
+  }
 }
+
 function verifyCd(){
   var d=[].slice.call(cds).map(function(i){return i.value;}).join("");
   if(d===gc){he("ce");hd("s-code");sh("s-s1");}
   else se("ce","Codigo incorreto. Tente novamente.");
 }
+
 function goS2(){
   var ok=true;
   if(!document.getElementById("f1").value.trim()){se("e1","Campo obrigatorio.");ok=false;}else he("e1");
@@ -273,6 +282,7 @@ function goS2(){
   if(!rv["g1"]){se("e3","Selecione o porte.");ok=false;}else he("e3");
   if(!ok)return;hd("s-s1");sh("s-s2");
 }
+
 async function submitF(){
   var ok=true;
   if(!document.getElementById("f5").value.trim()){se("e4","Informe um numero valido.");ok=false;}else he("e4");
@@ -281,28 +291,52 @@ async function submitF(){
   if(!rv["g4"]){se("e7","Selecione uma opcao.");ok=false;}else he("e7");
   if(!ok)return;
   var arq=document.getElementById("fa").files[0];
-  rs.push({ts:new Date().toLocaleString("pt-BR"),email:cem,nome:document.getElementById("f1").value.trim(),cnpj:document.getElementById("f2").value.trim(),arq:arq?arq.name:"-",porte:rv["g1"]||"-",rn:document.getElementById("f3").value.trim()||"-",cpf:document.getElementById("f4").value.trim()||"-",wa:document.getElementById("f5").value.trim(),comp:rv["g2"]||"-",lgpd:rv["g3"]||"-",br:rv["g4"]||"-"});
-  await fetch('/api/save-response', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(row)
-  });
-
-  updT();hd("s-s2");sh("s-ok");
+  var row={
+    ts:new Date().toLocaleString("pt-BR"),email:cem,
+    nome:document.getElementById("f1").value.trim(),
+    cnpj:document.getElementById("f2").value.trim(),
+    arq:arq?arq.name:"-",
+    porte:rv["g1"]||"-",
+    rn:document.getElementById("f3").value.trim()||"-",
+    cpf:document.getElementById("f4").value.trim()||"-",
+    wa:document.getElementById("f5").value.trim(),
+    comp:rv["g2"]||"-",
+    lgpd:rv["g3"]||"-",
+    br:rv["g4"]||"-"
+  };
+  var btn=document.getElementById("btn-submit");
+  btn.textContent="Enviando...";btn.classList.add("loading");
+  try {
+    await fetch('/api/save-response',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(row)
+    });
+    rs.push(row);updT();
+    hd("s-s2");sh("s-ok");
+  } catch(err){
+    alert("Erro ao salvar. Tente novamente.");
+  } finally {
+    btn.textContent="Enviar formulario";btn.classList.remove("loading");
+  }
 }
+
 function updT(){
   document.getElementById("ac").textContent=rs.length+" resposta(s) registrada(s)";
   document.getElementById("rb").innerHTML=rs.map(function(r,i){
     return "<tr><td><strong>"+(i+1)+"</strong></td><td>"+r.ts+"</td><td>"+r.email+"</td><td>"+r.nome+"</td><td style='font-family:monospace;font-size:11px'>"+r.cnpj+"</td><td>"+(r.arq!=="-"?"<span class='bg bgg'>"+r.arq+"</span>":"<span class='bg bgr'>-</span>")+"</td><td><span class='bg bgb'>"+r.porte+"</span></td><td>"+r.rn+"</td><td style='font-family:monospace;font-size:11px'>"+r.cpf+"</td><td>"+r.wa+"</td><td>"+(r.comp==="Concordo"?"<span class='bg bgg'>Concordo</span>":r.comp)+"</td><td>"+(r.lgpd==="Sim"?"<span class='bg bgg'>Sim</span>":"<span class='bg bgr'>Nao</span>")+"</td><td>"+(r.br==="Sim"?"<span class='bg bgg'>Sim</span>":"<span class='bg bgr'>Nao</span>")+"</td></tr>";
   }).join("");
 }
+
 function expCSV(){
   var h=["#","Data/Hora","E-mail","Nome","CNPJ","Arquivo","Porte","Resp.Nome","CPF","WhatsApp","Compromisso","LGPD","Branding"];
   var rows=rs.map(function(r,i){return[i+1,r.ts,r.email,r.nome,r.cnpj,r.arq,r.porte,r.rn,r.cpf,r.wa,r.comp,r.lgpd,r.br];});
   var csv=[h].concat(rows).map(function(r){return r.map(function(v){return'"'+String(v).replace(/"/g,'""')+'"';}).join(",");}).join("\n");
-  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));
   a.download="respostas_sebrae_"+new Date().toISOString().slice(0,10)+".csv";a.click();
 }
+
 document.addEventListener("keydown",function(e){
   if(e.key!=="Enter")return;
   if(!document.getElementById("s-email").classList.contains("hidden"))sendCode();
