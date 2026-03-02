@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEBRAE - Formulario de Adesao</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#003F88;--blue2:#0057C2;--orange:#F47920;--bg:#F0F4FA;--card:#fff;--text:#1A1D2E;--muted:#6B7280;--border:#D1DBF0;--success:#16A34A;--error:#DC2626;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Sora,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.header{background:var(--blue);padding:18px 40px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(0,63,136,.25);}
+.logo{width:46px;height:46px;background:var(--orange);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;text-align:center;line-height:1.2;}
+.htitle{color:#fff;font-size:17px;font-weight:600;line-height:1.2;}
+.htitle span{display:block;font-size:11px;font-weight:300;opacity:.7;}
+.wrap{max-width:680px;margin:0 auto;padding:40px 20px 80px;}
+.card{background:var(--card);border-radius:20px;box-shadow:0 4px 30px rgba(0,63,136,.08);padding:40px;animation:fu .4s ease both;}
+@keyframes fu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.ctitle{font-size:22px;font-weight:700;color:var(--blue);margin-bottom:6px;}
+.csub{font-size:13px;color:var(--muted);margin-bottom:32px;line-height:1.6;}
+.prog{display:flex;gap:6px;margin-bottom:32px;}
+.ps{height:5px;flex:1;border-radius:4px;background:var(--border);transition:background .3s;}
+.ps.done{background:var(--orange);}.ps.act{background:var(--blue2);}
+.sbadge{display:inline-flex;align-items:center;background:var(--blue);color:#fff;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:100px;margin-bottom:24px;}
+.field{margin-bottom:22px;}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:7px;}
+.req{color:var(--orange);}.hint{font-weight:400;color:var(--muted);font-size:12px;margin-left:6px;}
+input[type=text],input[type=email]{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-family:Sora,sans-serif;font-size:14px;background:#FAFBFF;outline:none;transition:border-color .2s,box-shadow .2s;color:var(--text);}
+input:focus{border-color:var(--blue2);box-shadow:0 0 0 4px rgba(0,87,194,.1);background:#fff;}
+.rg{display:flex;flex-direction:column;gap:10px;}
+.ri{display:flex;align-items:center;gap:12px;padding:12px 16px;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s;background:#FAFBFF;user-select:none;}
+.ri:hover{border-color:var(--blue2);background:#EEF4FF;}
+.ri.sel{border-color:var(--blue);background:#EEF4FF;}
+.rdot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.ri.sel .rdot{border-color:var(--blue);background:var(--blue);}
+.ri.sel .rdot::after{content:"";width:7px;height:7px;background:#fff;border-radius:50%;}
+.rlabel{font-size:14px;font-weight:500;}
+.fdrop{border:2px dashed var(--border);border-radius:14px;padding:28px;text-align:center;cursor:pointer;background:#FAFBFF;transition:all .2s;position:relative;}
+.fdrop:hover{border-color:var(--blue2);background:#EEF4FF;}
+.fdrop input{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+.fdrop-icon{font-size:30px;margin-bottom:8px;}
+.fdrop-text{font-size:13px;color:var(--muted);line-height:1.6;}
+.fdrop-text strong{color:var(--blue2);}
+.fname{margin-top:10px;font-size:12px;font-weight:600;color:var(--success);display:none;}
+.ibox{background:linear-gradient(135deg,#EEF4FF,#E8F0FF);border-left:4px solid var(--blue2);border-radius:12px;padding:16px 18px;font-size:13px;line-height:1.7;margin-bottom:16px;color:var(--text);}
+.ibox strong{color:var(--blue);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border-radius:14px;font-family:Sora,sans-serif;font-size:15px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.bp{background:var(--orange);color:#fff;width:100%;}
+.bp:hover{background:#e06d15;transform:translateY(-1px);box-shadow:0 6px 20px rgba(244,121,32,.3);}
+.bs{background:transparent;color:var(--blue);border:2px solid var(--blue);width:100%;margin-top:10px;}
+.bs:hover{background:#EEF4FF;}
+.ci{display:flex;gap:10px;justify-content:center;margin:28px 0;}
+.ci input{width:52px;height:60px;text-align:center;font-family:"JetBrains Mono",monospace;font-size:22px;font-weight:600;border:2px solid var(--border);border-radius:12px;background:#FAFBFF;outline:none;color:var(--text);}
+.ci input:focus{border-color:var(--blue2);}
+.em{font-size:12px;color:var(--error);margin-top:6px;display:none;}
+.em.show{display:block;}
+.loading{opacity:.6;pointer-events:none;}
+.sicon{width:72px;height:72px;background:#DCFCE7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px;}
+.atog{text-align:center;margin-top:28px;font-size:12px;color:var(--muted);}
+.atog a{color:var(--blue2);cursor:pointer;text-decoration:underline;}
+.acard{display:none;}.acard.vis{display:block;}
+.tw{overflow-x:auto;margin-top:16px;border-radius:12px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px;}
+th{background:var(--blue);color:#fff;padding:10px 12px;text-align:left;font-size:11px;font-weight:600;}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text);}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even) td{background:#F8FAFF;}
+.bg{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:600;}
+.bgg{background:#DCFCE7;color:#16A34A;}.bgr{background:#FEE2E2;color:#DC2626;}.bgb{background:#DBEAFE;color:#1D4ED8;}
+.exb{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--blue);color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;margin-top:14px;}
+.exb:hover{background:var(--blue2);}
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">SEB<br>RAE</div>
+  <div class="htitle">Formulario de Adesao<span>Sistema de Cadastro de Participantes</span></div>
+</div>
+<div class="wrap">
+
+  <div id="s-email" class="card">
+    <div class="ctitle">Bem-vindo(a)!</div>
+    <div class="csub">Para iniciar, informe seu e-mail. Voce recebera um codigo de verificacao para continuar.</div>
+    <div class="field">
+      <label>Seu e-mail <span class="req">*</span></label>
+      <input type="email" id="ei" placeholder="seu@email.com" />
+      <div class="em" id="ee">Informe um e-mail valido.</div>
+    </div>
+    <button class="btn bp" id="btn-send" onclick="sendCode()">Enviar codigo de verificacao &rarr;</button>
+  </div>
+
+  <div id="s-code" class="card hidden">
+    <div class="ctitle">Verificacao</div>
+    <div class="csub" id="cs">Digite o codigo de 5 digitos enviado para o seu e-mail.</div>
+    <div class="ci">
+      <input type="text" maxlength="1" class="cd" />
+      <input type="text" maxlength="1" class="cd" />
+      <input type="text" maxlength="1" class="cd" />
+      <input type="text" maxlength="1" class="cd" />
+      <input type="text" maxlength="1" class="cd" />
+    </div>
+    <div class="em" id="ce" style="text-align:center"></div>
+    <button class="btn bp" onclick="verifyCd()">Verificar e continuar &rarr;</button>
+    <button class="btn bs" onclick="hd('s-code');sh('s-email')">Voltar</button>
+  </div>
+
+  <div id="s-s1" class="card hidden">
+    <div class="prog"><div class="ps done"></div><div class="ps act"></div><div class="ps"></div></div>
+    <div class="sbadge">Secao 1 de 2</div>
+    <div class="ctitle">Dados da Empresa</div>
+    <div class="csub">Preencha as informacoes sobre sua empresa.</div>
+    <div class="field">
+      <label>Nome Completo do Cliente <span class="req">*</span></label>
+      <input type="text" id="f1" placeholder="Nome completo" />
+      <div class="em" id="e1">Campo obrigatorio.</div>
+    </div>
+    <div class="field">
+      <label>CNPJ <span class="req">*</span><span class="hint">Somente numeros, 14 digitos</span></label>
+      <input type="text" id="f2" placeholder="00000000000000" maxlength="14" />
+      <div class="em" id="e2">Informe um CNPJ valido (14 digitos).</div>
+    </div>
+    <div class="field">
+      <label>Termo de Adesao<span class="hint">Word, PDF, Imagem etc. max. 10MB</span></label>
+      <div class="fdrop">
+        <input type="file" id="fa" accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx,.pdf,image/*,video/*,audio/*" />
+        <div class="fdrop-icon">&#128206;</div>
+        <div class="fdrop-text"><strong>Clique para selecionar</strong> ou arraste aqui</div>
+        <div class="fname" id="fn"></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Porte da Empresa <span class="req">*</span></label>
+      <div class="rg" id="g1">
+        <div class="ri" data-val="MEI"><div class="rdot"></div><span class="rlabel">MEI - Microempreendedor Individual</span></div>
+        <div class="ri" data-val="ME"><div class="rdot"></div><span class="rlabel">ME - Micro Empresa</span></div>
+        <div class="ri" data-val="EPP"><div class="rdot"></div><span class="rlabel">EPP - Empresa de Pequeno Porte</span></div>
+        <div class="ri" data-val="Outra"><div class="rdot"></div><span class="rlabel">Outra</span></div>
+      </div>
+      <div class="em" id="e3">Selecione o porte da empresa.</div>
+    </div>
+    <button class="btn bp" onclick="goS2()">Proxima secao &rarr;</button>
+  </div>
+
+  <div id="s-s2" class="card hidden">
+    <div class="prog"><div class="ps done"></div><div class="ps done"></div><div class="ps act"></div></div>
+    <div class="sbadge">Secao 2 de 2</div>
+    <div class="ctitle">Dados do Responsavel</div>
+    <div class="csub">Informacoes pessoais e compromissos de participacao.</div>
+    <div class="field">
+      <label>Nome Completo do Responsavel</label>
+      <input type="text" id="f3" placeholder="Nome completo" />
+    </div>
+    <div class="field">
+      <label>CPF<span class="hint">Somente numeros</span></label>
+      <input type="text" id="f4" placeholder="00000000000" maxlength="11" />
+    </div>
+    <div class="field">
+      <label>WhatsApp com DDD <span class="req">*</span></label>
+      <input type="text" id="f5" placeholder="11999999999" maxlength="11" />
+      <div class="em" id="e4">Informe um numero valido com DDD.</div>
+    </div>
+    <div class="field">
+      <label>Compromisso de Resultados <span class="req">*</span></label>
+      <div class="ibox">A participacao no projeto visa promover acoes com foco no <strong>aumento medio de 20% no faturamento</strong> do participante. Ao prosseguir, voce declara estar ciente e de acordo com as condicoes de participacao ativa e fornecimento de dados para monitoramento.</div>
+      <div class="rg" id="g2">
+        <div class="ri" data-val="Concordo"><div class="rdot"></div><span class="rlabel">Concordo com os termos acima</span></div>
+      </div>
+      <div class="em" id="e5">E necessario concordar para continuar.</div>
+    </div>
+    <div class="field">
+      <label>Autorizacao LGPD <span class="req">*</span></label>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.6">Voce autoriza o SEBRAE a utilizar seus dados pessoais de forma segura e em conformidade com a LGPD para envio de informacoes e novas oportunidades?</div>
+      <div class="rg" id="g3">
+        <div class="ri" data-val="Sim"><div class="rdot"></div><span class="rlabel">Sim - Autorizo</span></div>
+        <div class="ri" data-val="Nao"><div class="rdot"></div><span class="rlabel">Nao</span></div>
+      </div>
+      <div class="em" id="e6">Selecione uma opcao.</div>
+    </div>
+    <div class="field">
+      <label>Pesquisa de Branding <span class="req">*</span></label>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.6">Voce concorda em receber e responder a uma pesquisa de avaliacao da <strong>Branding</strong> referente as acoes deste projeto?</div>
+      <div class="rg" id="g4">
+        <div class="ri" data-val="Sim"><div class="rdot"></div><span class="rlabel">Sim</span></div>
+        <div class="ri" data-val="Nao"><div class="rdot"></div><span class="rlabel">Nao</span></div>
+      </div>
+      <div class="em" id="e7">Selecione uma opcao.</div>
+    </div>
+    <button class="btn bp" id="btn-submit" onclick="submitF()">Enviar formulario</button>
+    <button class="btn bs" onclick="hd('s-s2');sh('s-s1')">Voltar</button>
+  </div>
+
+  <div id="s-ok" class="card hidden" style="text-align:center">
+    <div class="sicon">&#10003;</div>
+    <div class="ctitle" style="text-align:center">Cadastro realizado!</div>
+    <div class="csub" style="text-align:center;margin-bottom:0">Suas informacoes foram registradas com sucesso.<br>Em breve voce recebera um contato do SEBRAE.<br><br><strong style="color:var(--blue)">Obrigado por participar!</strong></div>
+  </div>
+
+  <div class="atog"><a onclick="document.getElementById('ap').classList.toggle('vis')">Visualizar respostas (admin)</a></div>
+
+  <div id="ap" class="card acard" style="margin-top:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <div class="ctitle" style="font-size:18px">Respostas Planilhadas</div>
+        <div style="font-size:12px;color:var(--muted)" id="ac">0 resposta(s)</div>
+      </div>
+      <button class="exb" onclick="expCSV()">Exportar CSV</button>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>#</th><th>Data/Hora</th><th>E-mail</th><th>Nome Cliente</th><th>CNPJ</th><th>Arquivo</th><th>Porte</th><th>Resp. Nome</th><th>CPF</th><th>WhatsApp</th><th>Compromisso</th><th>LGPD</th><th>Branding</th></tr></thead>
+        <tbody id="rb"><tr><td colspan="13" style="text-align:center;color:var(--muted);padding:28px">Nenhuma resposta ainda.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+<script>
+var cem="",gc="",rv={},rs=[];
+function sh(id){document.getElementById(id).classList.remove("hidden");}
+function hd(id){document.getElementById(id).classList.add("hidden");}
+function se(id,m){var el=document.getElementById(id);if(m)el.textContent=m;el.classList.add("show");}
+function he(id){document.getElementById(id).classList.remove("show");}
+
+document.querySelectorAll(".rg").forEach(function(g){
+  g.querySelectorAll(".ri").forEach(function(ri){
+    ri.addEventListener("click",function(){
+      g.querySelectorAll(".ri").forEach(function(x){x.classList.remove("sel");});
+      ri.classList.add("sel");rv[g.id]=ri.getAttribute("data-val");
+    });
+  });
+});
+
+document.getElementById("fa").addEventListener("change",function(){
+  var f=this.files[0];
+  if(f&&f.size>10485760){alert("Arquivo muito grande. Maximo 10MB.");this.value="";return;}
+  if(f){var n=document.getElementById("fn");n.textContent="Selecionado: "+f.name;n.style.display="block";}
+});
+
+["f2","f4","f5"].forEach(function(id){
+  document.getElementById(id).addEventListener("input",function(){this.value=this.value.replace(/\D/g,"");});
+});
+
+var cds=document.querySelectorAll(".cd");
+cds.forEach(function(inp,i){
+  inp.addEventListener("input",function(){inp.value=inp.value.replace(/\D/g,"");if(inp.value&&i<4)cds[i+1].focus();});
+  inp.addEventListener("keydown",function(e){if(e.key==="Backspace"&&!inp.value&&i>0){cds[i-1].focus();cds[i-1].value="";}});
+});
+
+async function sendCode(){
+  var e=document.getElementById("ei").value.trim();
+  if(!e||!/^[^@]+@[^@]+\.[^@]+$/.test(e)){se("ee","Informe um e-mail valido.");return;}
+  he("ee");cem=e;gc=String(Math.floor(10000+Math.random()*90000));
+  var btn=document.getElementById("btn-send");
+  btn.textContent="Enviando...";btn.classList.add("loading");
+  try {
+    await fetch('/api/send-code',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:cem,code:gc})
+    });
+    document.getElementById("cs").innerHTML="Digite o codigo enviado para <strong>"+e+"</strong>.";
+    hd("s-email");sh("s-code");cds[0].focus();
+  } catch(err) {
+    se("ee","Erro ao enviar e-mail. Tente novamente.");
+  } finally {
+    btn.textContent="Enviar codigo de verificacao \u2192";btn.classList.remove("loading");
+  }
+}
+
+function verifyCd(){
+  var d=[].slice.call(cds).map(function(i){return i.value;}).join("");
+  if(d===gc){he("ce");hd("s-code");sh("s-s1");}
+  else se("ce","Codigo incorreto. Tente novamente.");
+}
+
+function goS2(){
+  var ok=true;
+  if(!document.getElementById("f1").value.trim()){se("e1","Campo obrigatorio.");ok=false;}else he("e1");
+  var c=document.getElementById("f2").value.trim();
+  if(!c||c.length!==14){se("e2","Informe um CNPJ valido (14 digitos).");ok=false;}else he("e2");
+  if(!rv["g1"]){se("e3","Selecione o porte.");ok=false;}else he("e3");
+  if(!ok)return;hd("s-s1");sh("s-s2");
+}
+
+async function submitF(){
+  var ok=true;
+  if(!document.getElementById("f5").value.trim()){se("e4","Informe um numero valido.");ok=false;}else he("e4");
+  if(!rv["g2"]){se("e5","E necessario concordar.");ok=false;}else he("e5");
+  if(!rv["g3"]){se("e6","Selecione uma opcao.");ok=false;}else he("e6");
+  if(!rv["g4"]){se("e7","Selecione uma opcao.");ok=false;}else he("e7");
+  if(!ok)return;
+  var arq=document.getElementById("fa").files[0];
+  var row={
+    ts:new Date().toLocaleString("pt-BR"),email:cem,
+    nome:document.getElementById("f1").value.trim(),
+    cnpj:document.getElementById("f2").value.trim(),
+    arq:arq?arq.name:"-",
+    porte:rv["g1"]||"-",
+    rn:document.getElementById("f3").value.trim()||"-",
+    cpf:document.getElementById("f4").value.trim()||"-",
+    wa:document.getElementById("f5").value.trim(),
+    comp:rv["g2"]||"-",
+    lgpd:rv["g3"]||"-",
+    br:rv["g4"]||"-"
+  };
+  var btn=document.getElementById("btn-submit");
+  btn.textContent="Enviando...";btn.classList.add("loading");
+  try {
+    await fetch('/api/save-response',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(row)
+    });
+    rs.push(row);updT();
+    hd("s-s2");sh("s-ok");
+  } catch(err){
+    alert("Erro ao salvar. Tente novamente.");
+  } finally {
+    btn.textContent="Enviar formulario";btn.classList.remove("loading");
+  }
+}
+
+function updT(){
+  document.getElementById("ac").textContent=rs.length+" resposta(s) registrada(s)";
+  document.getElementById("rb").innerHTML=rs.map(function(r,i){
+    return "<tr><td><strong>"+(i+1)+"</strong></td><td>"+r.ts+"</td><td>"+r.email+"</td><td>"+r.nome+"</td><td style='font-family:monospace;font-size:11px'>"+r.cnpj+"</td><td>"+(r.arq!=="-"?"<span class='bg bgg'>"+r.arq+"</span>":"<span class='bg bgr'>-</span>")+"</td><td><span class='bg bgb'>"+r.porte+"</span></td><td>"+r.rn+"</td><td style='font-family:monospace;font-size:11px'>"+r.cpf+"</td><td>"+r.wa+"</td><td>"+(r.comp==="Concordo"?"<span class='bg bgg'>Concordo</span>":r.comp)+"</td><td>"+(r.lgpd==="Sim"?"<span class='bg bgg'>Sim</span>":"<span class='bg bgr'>Nao</span>")+"</td><td>"+(r.br==="Sim"?"<span class='bg bgg'>Sim</span>":"<span class='bg bgr'>Nao</span>")+"</td></tr>";
+  }).join("");
+}
+
+function expCSV(){
+  var h=["#","Data/Hora","E-mail","Nome","CNPJ","Arquivo","Porte","Resp.Nome","CPF","WhatsApp","Compromisso","LGPD","Branding"];
+  var rows=rs.map(function(r,i){return[i+1,r.ts,r.email,r.nome,r.cnpj,r.arq,r.porte,r.rn,r.cpf,r.wa,r.comp,r.lgpd,r.br];});
+  var csv=[h].concat(rows).map(function(r){return r.map(function(v){return'"'+String(v).replace(/"/g,'""')+'"';}).join(",");}).join("\n");
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));
+  a.download="respostas_sebrae_"+new Date().toISOString().slice(0,10)+".csv";a.click();
+}
+
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Enter")return;
+  if(!document.getElementById("s-email").classList.contains("hidden"))sendCode();
+  else if(!document.getElementById("s-code").classList.contains("hidden"))verifyCd();
+});
+</script>
+</body>
+</html>
