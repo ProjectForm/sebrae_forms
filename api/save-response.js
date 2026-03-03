@@ -31,54 +31,39 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Erro ao obter token' });
     }
 
-    // 2. Buscar o arquivo no OneDrive do usuario
-    const driveRes = await fetch(
-      `https://graph.microsoft.com/v1.0/users/juanaga@sebraesp.com.br/drive/root:/CONTROLE DE PJs - Faturamento - 2026.xlsx:/workbook/worksheets`,
+    // 2. Buscar coluna A para achar ultima linha preenchida (a partir da linha 5)
+    const colARes = await fetch(
+      `https://graph.microsoft.com/v1.0/users/juanaga@sebraesp.com.br/drive/root:/CONTROLE DE PJs - Faturamento - 2026.xlsx:/workbook/worksheets('DADOS')/range(address='A5:A500')`,
       {
         headers: { Authorization: `Bearer ${token}` }
       }
     );
 
-    const driveData = await driveRes.json();
-    
-    if (!driveData.value || driveData.value.length === 0) {
-      console.error('Worksheet error:', driveData);
-      return res.status(500).json({ error: 'Planilha nao encontrada' });
+    const colAData = await colARes.json();
+    const rows = colAData.values || [];
+
+    // Encontrar primeira linha vazia na coluna A (a partir da linha 5)
+    let nextRow = 5;
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i][0] !== null && rows[i][0] !== '') {
+        nextRow = 5 + i + 1;
+      }
     }
 
-    const sheetName = 'DADOS';
-
-    // 3. Buscar a ultima linha preenchida (coluna A)
-    const rangeRes = await fetch(
-      `https://graph.microsoft.com/v1.0/users/juanaga@sebraesp.com.br/drive/root:/CONTROLE DE PJs - Faturamento - 2026.xlsx:/workbook/worksheets('${sheetName}')/usedRange`,
-      {
-        headers: { Authorization: `Bearer ${token}` }
-      }
-    );
-
-    const rangeData = await rangeRes.json();
-    const lastRow = rangeData.rowCount || 1;
-    const nextRow = lastRow + 1;
-
-    // 4. Escrever na proxima linha vazia
+    // 3. Escrever na proxima linha vazia
+    const hoje = new Date().toLocaleDateString('pt-BR');
     const values = [[
-      data.ts || new Date().toLocaleString('pt-BR'),
-      data.email || '',
-      data.razao || '',
-      data.cpf || '',
-      data.cel || '',
-      data.cnpj || '',
-      data.porte || '',
-      data.gestor || '',
-      data.resp || '',
-      data.wa || '',
-      data.comp || '',
-      data.lgpd || '',
-      data.brand || ''
+      data.gestor || '',   // A - Gestor
+      hoje,                // B - Data de Atualizacao
+      data.razao || '',    // C - Razao Social
+      data.cpf || '',      // D - CPF
+      data.cel || '',      // E - Celular
+      data.cnpj || '',     // F - CNPJ
+      data.porte || ''     // G - Porte
     ]];
 
     const writeRes = await fetch(
-      `https://graph.microsoft.com/v1.0/users/juanaga@sebraesp.com.br/drive/root:/CONTROLE DE PJs - Faturamento - 2026.xlsx:/workbook/worksheets('${sheetName}')/range(address='A${nextRow}:M${nextRow}')`,
+      `https://graph.microsoft.com/v1.0/users/juanaga@sebraesp.com.br/drive/root:/CONTROLE DE PJs - Faturamento - 2026.xlsx:/workbook/worksheets('DADOS')/range(address='A${nextRow}:G${nextRow}')`,
       {
         method: 'PATCH',
         headers: {
