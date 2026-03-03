@@ -46,7 +46,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Planilha nao encontrada' });
     }
 
-    const sheetName = driveData.value[0].name;
+    const sheetName = 'DADOS';
 
     // 3. Buscar a ultima linha preenchida (coluna A)
     const rangeRes = await fetch(
