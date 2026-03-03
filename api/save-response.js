@@ -8,68 +8,50 @@ export default async function handler(req, res) {
   const data = req.body;
 
   try {
-    // 1. Token
+    // 1. Obter access token usando refresh token
     const tokenRes = await fetch(
-      `https://login.microsoftonline.com/6d60b55c-2576-4d60-ae33-11df0ea07983/oauth2/v2.0/token`,
+      `https://login.microsoftonline.com/common/oauth2/v2.0/token`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
-          grant_type: 'client_credentials',
+          grant_type: 'refresh_token',
           client_id: '1385935a-db4a-4514-868e-c76764856c36',
-          client_secret: process.env.AZURE_CLIENT_SECRET,
-          scope: 'https://graph.microsoft.com/.default'
+          refresh_token: process.env.MS_REFRESH_TOKEN,
+          scope: 'https://graph.microsoft.com/Files.ReadWrite offline_access'
         })
       }
     );
+
     const tokenData = await tokenRes.json();
     const token = tokenData.access_token;
+
     if (!token) {
       console.error('Token error:', JSON.stringify(tokenData));
       return res.status(500).json({ error: 'Erro ao obter token', detail: tokenData });
     }
 
     const user = 'juanaga@sebraesp.com.br';
-    const fileName = 'CONTROLE DE PJs - Faturamento - 2026.xlsx';
     const sheet = 'DADOS';
 
-    // 2. Buscar arquivo pelo nome na raiz do OneDrive
+    // 2. Buscar arquivo por search
     const searchRes = await fetch(
-      `https://graph.microsoft.com/v1.0/users/${user}/drive/root/children`,
+      `https://graph.microsoft.com/v1.0/me/drive/root/search(q='CONTROLE DE PJs - Faturamento - 2026')`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const searchData = await searchRes.json();
-    console.log('Drive root files:', JSON.stringify(searchData?.value?.map(f => f.name)));
+    console.log('Search:', JSON.stringify(searchData?.value?.map(f => f.name)));
 
-    // Buscar o arquivo na raiz ou em subpastas
-    let fileId = null;
-    if (searchData.value) {
-      const found = searchData.value.find(f => f.name === fileName);
-      if (found) fileId = found.id;
+    if (!searchData.value || searchData.value.length === 0) {
+      return res.status(500).json({ error: 'Arquivo nao encontrado' });
     }
 
-    // Se nao achou na raiz, tenta buscar por search
-    if (!fileId) {
-      const s2 = await fetch(
-        `https://graph.microsoft.com/v1.0/users/${user}/drive/root/search(q='CONTROLE DE PJs')`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      const s2data = await s2.json();
-      console.log('Search results:', JSON.stringify(s2data?.value?.map(f => f.name)));
-      if (s2data.value && s2data.value.length > 0) {
-        fileId = s2data.value[0].id;
-      }
-    }
-
-    if (!fileId) {
-      return res.status(500).json({ error: 'Arquivo nao encontrado no OneDrive' });
-    }
-
-    console.log('File ID encontrado:', fileId);
+    const fileId = searchData.value[0].id;
+    console.log('File ID:', fileId);
 
     // 3. Buscar coluna A a partir da linha 5
     const colRes = await fetch(
-      `https://graph.microsoft.com/v1.0/users/${user}/drive/items/${fileId}/workbook/worksheets('${sheet}')/range(address='A5:A500')`,
+      `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets('${sheet}')/range(address='A5:A500')`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const colData = await colRes.json();
@@ -89,7 +71,7 @@ export default async function handler(req, res) {
 
     console.log('Escrevendo na linha:', nextRow);
 
-    // 4. Escrever
+    // 4. Escrever na proxima linha vazia
     const hoje = new Date().toLocaleDateString('pt-BR');
     const values = [[
       data.gestor || '',
@@ -102,10 +84,13 @@ export default async function handler(req, res) {
     ]];
 
     const writeRes = await fetch(
-      `https://graph.microsoft.com/v1.0/users/${user}/drive/items/${fileId}/workbook/worksheets('${sheet}')/range(address='A${nextRow}:G${nextRow}')`,
+      `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets('${sheet}')/range(address='A${nextRow}:G${nextRow}')`,
       {
         method: 'PATCH',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ values })
       }
     );
